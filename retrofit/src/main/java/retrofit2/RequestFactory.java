@@ -177,6 +177,7 @@ final class RequestFactory {
     }
 
     RequestFactory build() {
+      // 解析注解
       for (Annotation annotation : methodAnnotations) {
         parseMethodAnnotation(annotation);
       }

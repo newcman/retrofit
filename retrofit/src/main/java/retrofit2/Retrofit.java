@@ -157,7 +157,7 @@ public final class Retrofit {
                 args = args != null ? args : emptyArgs;
                 return platform.isDefaultMethod(method)
                     ? platform.invokeDefaultMethod(method, service, proxy, args)
-                    : loadServiceMethod(method).invoke(args);
+                    : loadServiceMethod(method).invoke(args); // ServiceMethod.invoke() 这个类比较重要
               }
             });
   }
@@ -199,8 +199,8 @@ public final class Retrofit {
     synchronized (serviceMethodCache) {
       result = serviceMethodCache.get(method);
       if (result == null) {
-        result = ServiceMethod.parseAnnotations(this, method);
-        serviceMethodCache.put(method, result);
+        result = ServiceMethod.parseAnnotations(this, method); // 解析注解
+        serviceMethodCache.put(method, result); // 放入缓存
       }
     }
     return result;
@@ -625,19 +625,21 @@ public final class Retrofit {
 
       okhttp3.Call.Factory callFactory = this.callFactory;
       if (callFactory == null) {
-        callFactory = new OkHttpClient();
+        callFactory = new OkHttpClient(); // okhttp
       }
-
+      // 添加线程管理excutor,用来切换主线程
       Executor callbackExecutor = this.callbackExecutor;
       if (callbackExecutor == null) {
         callbackExecutor = platform.defaultCallbackExecutor();
       }
 
       // Make a defensive copy of the adapters and add the default Call adapter.
+      // 添加默认的calladapter：对okhttp call的一个封装
       List<CallAdapter.Factory> callAdapterFactories = new ArrayList<>(this.callAdapterFactories);
       callAdapterFactories.addAll(platform.defaultCallAdapterFactories(callbackExecutor));
 
       // Make a defensive copy of the converters.
+      // 1、把retrofit的requestbodt转换成okhttp的请求，2、把responce转换成最终结果
       List<Converter.Factory> converterFactories =
           new ArrayList<>(
               1 + this.converterFactories.size() + platform.defaultConverterFactoriesSize());

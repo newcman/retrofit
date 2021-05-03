@@ -62,7 +62,7 @@ abstract class HttpServiceMethod<ResponseT, ReturnT> extends ServiceMethod<Retur
     } else {
       adapterType = method.getGenericReturnType();
     }
-
+    // 根据类型获取CallAdapter
     CallAdapter<ResponseT, ReturnT> callAdapter =
         createCallAdapter(retrofit, method, adapterType, annotations);
     Type responseType = callAdapter.responseType();
@@ -80,7 +80,7 @@ abstract class HttpServiceMethod<ResponseT, ReturnT> extends ServiceMethod<Retur
     if (requestFactory.httpMethod.equals("HEAD") && !Void.class.equals(responseType)) {
       throw methodError(method, "HEAD method must use Void as response type.");
     }
-
+    // 格式转换
     Converter<ResponseBody, ResponseT> responseConverter =
         createResponseConverter(retrofit, method, responseType);
 
@@ -142,6 +142,7 @@ abstract class HttpServiceMethod<ResponseT, ReturnT> extends ServiceMethod<Retur
 
   @Override
   final @Nullable ReturnT invoke(Object[] args) {
+    // 创建具体的 OkHttpCall
     Call<ResponseT> call = new OkHttpCall<>(requestFactory, args, callFactory, responseConverter);
     return adapt(call, args);
   }
@@ -178,6 +179,7 @@ abstract class HttpServiceMethod<ResponseT, ReturnT> extends ServiceMethod<Retur
       this.callAdapter = callAdapter;
     }
 
+    // 具体的处理流程
     @Override
     protected Object adapt(Call<ResponseT> call, Object[] args) {
       call = callAdapter.adapt(call);
@@ -209,7 +211,7 @@ abstract class HttpServiceMethod<ResponseT, ReturnT> extends ServiceMethod<Retur
       this.callAdapter = callAdapter;
       this.isNullable = isNullable;
     }
-
+    // 具体的处理流程
     @Override
     protected Object adapt(Call<ResponseT> call, Object[] args) {
       call = callAdapter.adapt(call);

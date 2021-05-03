@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
  * Adapts a {@link Call} with response type {@code R} into the type of {@code T}. Instances are
  * created by {@linkplain Factory a factory} which is {@linkplain
  * Retrofit.Builder#addCallAdapterFactory(Factory) installed} into the {@link Retrofit} instance.
+ * 把call转换成response
  */
 public interface CallAdapter<R, T> {
   /**

@@ -57,14 +57,18 @@ final class DefaultCallAdapterFactory extends CallAdapter.Factory {
 
       @Override
       public Call<Object> adapt(Call<Object> call) {
-        return executor == null ? call : new ExecutorCallbackCall<>(executor, call);
+        return executor == null ? call : new ExecutorCallbackCall<>(executor, call); // 就是加了一个线程切换
       }
     };
   }
-
+  /**
+   * 装饰模式
+   * 调用代理进行具体网络请求
+   * 然后进行主线程切换
+    */
   static final class ExecutorCallbackCall<T> implements Call<T> {
-    final Executor callbackExecutor;
-    final Call<T> delegate;
+    final Executor callbackExecutor; // 主线程切换
+    final Call<T> delegate; // 具体委托对象为 OkHttpCall :delegate->okhttpcall->okhttp->realcall
 
     ExecutorCallbackCall(Executor callbackExecutor, Call<T> delegate) {
       this.callbackExecutor = callbackExecutor;
@@ -79,7 +83,7 @@ final class DefaultCallAdapterFactory extends CallAdapter.Factory {
           new Callback<T>() {
             @Override
             public void onResponse(Call<T> call, final Response<T> response) {
-              callbackExecutor.execute(
+              callbackExecutor.execute( // 在主线程执行
                   () -> {
                     if (delegate.isCanceled()) {
                       // Emulate OkHttp's behavior of throwing/delivering an IOException on

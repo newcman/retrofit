@@ -30,6 +30,11 @@ import okio.ForwardingSource;
 import okio.Okio;
 import okio.Timeout;
 
+/**
+ * 最终的网络请求 okhttp
+ * 数据解析
+ * @param <T>
+ */
 final class OkHttpCall<T> implements Call<T> {
   private final RequestFactory requestFactory;
   private final Object[] args;
@@ -143,13 +148,14 @@ final class OkHttpCall<T> implements Call<T> {
     if (canceled) {
       call.cancel();
     }
-
+    // okhttp去请求
     call.enqueue(
         new okhttp3.Callback() {
           @Override
           public void onResponse(okhttp3.Call call, okhttp3.Response rawResponse) {
             Response<T> response;
             try {
+              // 解析结果
               response = parseResponse(rawResponse);
             } catch (Throwable e) {
               throwIfFatal(e);
@@ -240,6 +246,7 @@ final class OkHttpCall<T> implements Call<T> {
 
     ExceptionCatchingResponseBody catchingBody = new ExceptionCatchingResponseBody(rawBody);
     try {
+      // 转换结果
       T body = responseConverter.convert(catchingBody);
       return Response.success(body, rawResponse);
     } catch (RuntimeException e) {

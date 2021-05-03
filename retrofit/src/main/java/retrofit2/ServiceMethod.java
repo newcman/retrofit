@@ -21,11 +21,16 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import javax.annotation.Nullable;
 
+/***
+ * 一个网络请求方法对于一个ServiceMethod
+ * 存储一次网络请求的基本信息，比如Host，url、请求方法等，以及适配OkhttpCall对象的callAdpater
+ * @param <T>
+ */
 abstract class ServiceMethod<T> {
   static <T> ServiceMethod<T> parseAnnotations(Retrofit retrofit, Method method) {
     RequestFactory requestFactory = RequestFactory.parseAnnotations(retrofit, method);
 
-    Type returnType = method.getGenericReturnType();
+    Type returnType = method.getGenericReturnType(); // 返回类型
     if (Utils.hasUnresolvableType(returnType)) {
       throw methodError(
           method,
